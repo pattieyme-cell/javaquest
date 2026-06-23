@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JavaQuest — Your Life Game</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B1020">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B1020;
+  --bg2:#121A33;
+  --panel:#161F3D;
+  --line:#283058;
+  --text:#E7ECFF;
+  --muted:#8C96C0;
+  --gold:#F5C24C;
+  --green:#3FE0A5;
+  --red:#FF6B6B;
+  --blue:#5B8CFF;
+  --purple:#A879FF;
+  --radius:16px;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:radial-gradient(1200px 800px at 80% -10%, #1A2550 0%, var(--bg) 55%);
+  color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;}
+.mono{font-family:'JetBrains Mono',monospace;}
+#app{max-width:860px;margin:0 auto;padding:18px 16px 60px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand .glyph{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--blue));
+  display:flex;align-items:center;justify-content:center;font-weight:700;color:#0B1020;font-size:18px;}
+.brand h1{font-size:18px;letter-spacing:.3px;}
+.xpbar-wrap{display:flex;align-items:center;gap:10px;}
+.level-chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--gold);font-weight:700;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px;}
+.card h2{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:600;}
+button{font-family:inherit;border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;transition:transform .12s, opacity .12s;}
+button:active{transform:scale(0.97);}
+.btn-primary{background:linear-gradient(135deg,var(--green),#27c98c);color:#04231a;}
+.btn-secondary{background:var(--bg2);color:var(--text);border:1px solid var(--line);}
+.btn-danger{background:rgba(255,107,107,.15);color:var(--red);border:1px solid rgba(255,107,107,.4);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px dashed var(--line);}
+.row{display:flex;gap:10px;flex-wrap:wrap;}
+.input, select, textarea{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:11px 12px;font-family:inherit;font-size:14px;margin-top:6px;}
+label{font-size:13px;color:var(--muted);font-weight:600;}
+.field{margin-bottom:14px;}
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}
+.choice{background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;text-align:center;}
+.choice.selected{border-color:var(--green);background:rgba(63,224,165,.08);}
+.choice .emoji{font-size:26px;display:block;margin-bottom:6px;}
+.choice .title{font-weight:700;font-size:13px;}
+.choice .sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.progressbar{height:10px;border-radius:999px;background:var(--bg2);overflow:hidden;border:1px solid var(--line);}
+.progressbar > div{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));}
+.task{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--bg2);
+  border:1px solid var(--line);margin-bottom:8px;}
+.task.done{opacity:.55;}
+.task.done .task-title{text-decoration:line-through;}
+.checkbox{width:26px;height:26px;border-radius:8px;border:2px solid var(--muted);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:900;}
+.checkbox.checked{background:var(--green);border-color:var(--green);color:#04231a;}
+.task-body{flex:1;min-width:0;}
+.task-title{font-weight:700;font-size:14px;}
+.task-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;margin-top:4px;text-transform:uppercase;letter-spacing:.4px;}
+.tag.java{background:rgba(91,140,255,.18);color:var(--blue);}
+.tag.apt{background:rgba(168,121,255,.18);color:var(--purple);}
+.tag.gym{background:rgba(255,107,107,.18);color:var(--red);}
+.tag.ml{background:rgba(245,194,76,.18);color:var(--gold);}
+.tag.other{background:rgba(140,150,192,.18);color:var(--muted);}
+.quote-box{background:linear-gradient(135deg,rgba(91,140,255,.12),rgba(168,121,255,.12));border:1px solid var(--line);
+  border-radius:14px;padding:16px;font-style:italic;font-size:14px;line-height:1.5;}
+.quote-box .who{display:block;margin-top:8px;font-style:normal;font-weight:700;font-size:12px;color:var(--muted);}
+.nav{display:flex;gap:8px;justify-content:center;margin:18px 0 8px;}
+.nav button{flex:1;background:var(--bg2);color:var(--muted);border:1px solid var(--line);}
+.nav button.active{background:var(--green);color:#04231a;border-color:var(--green);}
+.hidden{display:none !important;}
+.center{text-align:center;}
+.small{font-size:12px;color:var(--muted);}
+.modal-bg{position:fixed;inset:0;background:rgba(5,8,20,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:420px;width:100%;}
+.streak{display:flex;gap:4px;}
+.streak span{width:10px;height:10px;border-radius:3px;background:var(--bg2);}
+.streak span.on{background:var(--green);}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;}
+.statgrid .stat{background:var(--bg2);border-radius:12px;padding:12px 6px;border:1px solid var(--line);}
+.statgrid .stat b{font-size:20px;display:block;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#04231a;
+  padding:10px 18px;border-radius:999px;font-weight:700;font-size:13px;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ===================== STATE ===================== */
+const QUOTES = [
+ ["Discipline is choosing between what you want now and what you want most.", "Abraham Lincoln"],
+ ["You don't have to be great to start, but you have to start to be great.", "Zig Ziglar"],
+ ["The expert in anything was once a beginner.", "Helen Hayes"],
+ ["A little progress each day adds up to big results.", "Unknown"],
+ ["Code never lies, comments sometimes do.", "Ron Jeffries"],
+ ["The body achieves what the mind believes.", "Napoleon Hill"],
+ ["One day or day one. You decide.", "Unknown"],
+ ["Push yourself, because no one else is going to do it for you.", "Unknown"],
+ ["Java was hard yesterday. It's a little less hard today. That's the whole game.", "JavaQuest"],
+ ["Discipline beats motivation when motivation goes to sleep.", "Unknown"],
+ ["You are one workout, one program, one revision away from a better version of you.", "JavaQuest"],
+ ["Small daily improvements lead to staggering long-term results.", "Robin Sharma"],
+];
+
+const MODES = {
+  strict:  {label:"Strict",  emoji:"🔥", desc:"No skipping. Full load every day.", loadMult:1.15, carryAll:true},
+  balanced:{label:"Balanced",emoji:"⚖️", desc:"Solid pace, room to breathe.",       loadMult:1.0,  carryAll:true},
+  liberal: {label:"Liberal", emoji:"🌿", desc:"Flexible, lighter daily load.",      loadMult:0.8,  carryAll:false},
+  easy:    {label:"Easy",    emoji:"🍃", desc:"Gentle ramp-up, beginner friendly.", loadMult:0.6,  carryAll:false},
+};
+
+const JAVA_TOPICS = [
+ "JVM/JDK basics, variables & data types","Operators, if-else, switch","Loops: for/while/do-while",
+ "Arrays (1D & 2D)","Strings & StringBuilder","Methods & recursion","WEEK REVISION + mini test",
+ "OOP: Class, Object, Constructor","OOP: Inheritance & super","OOP: Polymorphism, Interfaces, Abstraction",
+ "Exception handling + ArrayList","Collections: HashMap/HashSet, File I/O","Multithreading + Java 8 lambdas/streams",
+ "FINAL: build a mini project","Generics & advanced Collections","JDBC basics (DB connectivity)",
+ "Java GUI basics (Swing/JavaFX intro)","REVISION + mock test","Design patterns intro (Singleton, Factory)",
+ "Build a second mini project","Capstone project work","Capstone project finish + showcase"
+];
+const APT_TOPICS = [
+ "Number System & Simplification","Percentages","Profit & Loss","Ratio & Proportion","Time, Speed & Distance",
+ "Time & Work","Mixed Practice Test","Blood Relations","Coding-Decoding","Seating Arrangement","Syllogisms",
+ "Data Interpretation","Puzzles","Full Mock Test","Permutations & Combinations","Probability","Averages",
+ "Mixed Practice Test 2","Verbal Reasoning","Critical Reasoning","Final Mock Test 2","Revision day"
+];
+
+let DB = JSON.parse(localStorage.getItem('javaquest_db') || 'null');
+function saveDB(){ localStorage.setItem('javaquest_db', JSON.stringify(DB)); }
+
+function freshDB(){
+  return {
+    setup: null,           // profile/answers
+    roadmap: [],           // array of day objects
+    todayIndex: 0,         // index into roadmap representing "today"
+    xp: 0,
+    streak: 0,
+    history: [],           // completed day summaries
+  };
+}
+if(!DB) DB = freshDB();
+
+/* ===================== ROADMAP GENERATION ===================== */
+function buildRoadmap(setup){
+  const days = setup.totalDays;
+  const mode = MODES[setup.mode];
+  const roadmap = [];
+  let javaPtr = 0, aptPtr = 0;
+  for(let i=0;i<days;i++){
+    const dow = i % 7; // 0=day1
+    const isSundayRest = setup.gymRestDay && dow===6;
+    const tasks = [];
+    // Gym
+    if(setup.wantsGym){
+      tasks.push(mkTask('gym', isSundayRest? 'Active recovery: stretch + light walk' : 'Gym session ('+setup.gymTime+')', setup.gymTime, 30));
+    }
+    // Java study + practice (skip on pure revision days handled inside topic text)
+    const topic = JAVA_TOPICS[javaPtr % JAVA_TOPICS.length];
+    const programCount = Math.max(2, Math.round((topic.toLowerCase().includes('revision')||topic.toLowerCase().includes('final')||topic.toLowerCase().includes('capstone') ? 3 : 5) * mode.loadMult));
+    tasks.push(mkTask('java','Learn: '+topic, setup.studyTime, 40));
+    tasks.push(mkTask('java','Practice '+programCount+' program(s) on: '+topic, setup.practiceTime, 40));
+    javaPtr++;
+    // Aptitude
+    tasks.push(mkTask('apt','Aptitude: '+APT_TOPICS[aptPtr % APT_TOPICS.length]+' ('+Math.max(5,Math.round(15*mode.loadMult))+' Qs)', setup.aptTime, 25));
+    aptPtr++;
+    // ML
+    if(setup.wantsML){
+      tasks.push(mkTask('ml','ML online course (1 hr)', setup.mlTime, 25));
+    }
+    // fixed commitments shown read-only style as 'other' tags for awareness
+    if(setup.college) tasks.push(mkTask('other', 'College: '+setup.college, '', 0, true));
+    if(setup.music) tasks.push(mkTask('other', 'Music session', setup.music, 0, true));
+    roadmap.push({
+      day:i+1,
+      label: 'Day '+(i+1),
+      tasks,
+      notes:'',
+      reviewed:false,
+      suddenPlan:null,
+    });
+  }
+  return roadmap;
+}
+function mkTask(type,title,time,xp,fixed){
+  return {id: Math.random().toString(36).slice(2,9), type, title, time:time||'', xp:xp||0, done:false, fixed:!!fixed, carried:false};
+}
+
+/* shift everything from index onward by N days: simplest approach = insert N "buffer/sudden plan" days */
+function insertSuddenPlanDays(fromIndex, count, label){
+  for(let k=0;k<count;k++){
+    DB.roadmap.splice(fromIndex+k, 0, {
+      day: 0, label: '📌 '+(label||'Personal time'), tasks: [], notes:'', reviewed:false, suddenPlan:true,
+    });
+  }
+  // renumber
+  DB.roadmap.forEach((d,idx)=>{ if(!d.suddenPlan){ } });
+}
+
+/* push a not-done study/apt task to the next real day (skip sudden-plan days) */
+function carryOverPending(dayIdx){
+  const day = DB.roadmap[dayIdx];
+  const pending = day.tasks.filter(t=>!t.done && (t.type==='java'||t.type==='apt') && !t.fixed);
+  if(pending.length===0) return;
+  let nextIdx = dayIdx+1;
+  while(nextIdx<DB.roadmap.length && DB.roadmap[nextIdx].suddenPlan) nextIdx++;
+  if(nextIdx>=DB.roadmap.length) return;
+  pending.forEach(t=>{
+    const copy = Object.assign({}, t, {id: Math.random().toString(36).slice(2,9), done:false, carried:true, title: '⏪ '+t.title});
+    DB.roadmap[nextIdx].tasks.unshift(copy);
+  });
+}
+
+/* ===================== RENDER ===================== */
+let VIEW = DB.setup ? 'dashboard' : 'setup';
+let SETUP_STEP = 0;
+let setupDraft = {mode:'balanced', totalMonths:1, wantsGym:true, gymRestDay:true, wantsML:true,
+  college:'8:30 AM – 12:30 PM', music:'4:30 – 6:00 PM', gymTime:'6:00 AM', studyTime:'2:30 PM',
+  practiceTime:'6:00 PM', aptTime:'7:30 AM', mlTime:'3:30 PM'};
+
+function render(){
+  const app = document.getElementById('app');
+  if(VIEW==='setup'){ app.innerHTML = renderSetup(); bindSetup(); return; }
+  app.innerHTML = renderShell();
+  bindShell();
+}
+
+function totalXPPossible(){ return DB.roadmap.reduce((s,d)=>s+d.tasks.reduce((s2,t)=>s2+(t.fixed?0:t.xp),0),0); }
+function levelInfo(){
+  const lvl = Math.floor(DB.xp/200)+1;
+  const inLevel = DB.xp%200;
+  const badges = ["Rookie","Coder-in-Training","Java Warrior","Code Champion","Legend"];
+  const badge = badges[Math.min(badges.length-1, Math.floor((lvl-1)/2))];
+  return {lvl,inLevel,badge};
+}
+
+function renderShell(){
+  const day = DB.roadmap[DB.todayIndex];
+  const {lvl,inLevel,badge} = levelInfo();
+  const quote = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  return `
+  <div class="topbar">
+    <div class="brand"><div class="glyph">JQ</div><h1>JavaQuest</h1></div>
+    <div class="xpbar-wrap">
+      <div class="level-chip">⭐ Lv.${lvl} · ${badge}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <h2 style="margin:0;">Total XP</h2>
+      <span class="mono small">${DB.xp} / ${totalXPPossible()}</span>
+    </div>
+    <div class="progressbar"><div style="width:${Math.min(100, inLevel/2)}%"></div></div>
+    <div class="small" style="margin-top:6px;">${200-inLevel} XP to next level</div>
+  </div>
+
+  <div class="quote-box">"${quote[0]}"<span class="who">— ${quote[1]}</span></div>
+
+  <div class="nav" id="navRow">
+    <button data-v="dashboard" class="${VIEW==='dashboard'?'active':''}">Today</button>
+    <button data-v="roadmap" class="${VIEW==='roadmap'?'active':''}">Roadmap</button>
+    <button data-v="alarms" class="${VIEW==='alarms'?'active':''}">Alarms</button>
+    <button data-v="stats" class="${VIEW==='stats'?'active':''}">Stats</button>
+  </div>
+
+  <div id="viewContent">${
+    VIEW==='dashboard' ? renderDashboard(day) :
+    VIEW==='roadmap' ? renderRoadmapList() :
+    VIEW==='alarms' ? renderAlarms(day) :
+    renderStats()
+  }</div>
+  <div style="text-align:center;margin-top:24px;">
+    <button class="btn-ghost" id="resetBtn">⚠ Reset entire app</button>
+  </div>
+  `;
+}
+
+function tagHTML(type){
+  const map = {java:['JAVA','java'],apt:['APTITUDE','apt'],gym:['GYM','gym'],ml:['ML CLASS','ml'],other:['FIXED','other']};
+  const [label,cls] = map[type]||['','other'];
+  return `<span class="tag ${cls}">${label}</span>`;
+}
+
+function renderDashboard(day){
+  if(!day) return `<div class="card center"><h2>🎉 Roadmap complete!</h2><p>You finished every day you planned. Start a new roadmap from Stats tab or just relax — you earned it.</p></div>`;
+  const total = day.tasks.filter(t=>!t.fixed).length;
+  const done = day.tasks.filter(t=>!t.fixed && t.done).length;
+  if(day.suddenPlan){
+    return `<div class="card"><h2>${day.label}</h2><p class="small">This day is reserved for your personal plan. Nothing scheduled — enjoy it, then we resume your roadmap right after.</p>
+    <button class="btn-primary" id="skipPlanDay">Mark plan day complete →</button></div>`;
+  }
+  return `
+  <div class="card">
+    <h2>${day.label} — ${done}/${total} tasks done</h2>
+    <div class="progressbar" style="margin-bottom:14px;"><div style="width:${total? (done/total*100):0}%"></div></div>
+    ${day.tasks.map(t=>`
+      <div class="task ${t.done?'done':''}" data-id="${t.id}">
+        <div class="checkbox ${t.done?'checked':''} ${t.fixed?'hidden':''}" data-toggle="${t.id}">${t.done?'✓':''}</div>
+        <div class="task-body">
+          <div class="task-title">${t.title}</div>
+          <div class="task-time">${t.time}</div>
+          ${tagHTML(t.type)}
+        </div>
+      </div>`).join('')}
+    <button class="btn-primary" id="finishDayBtn" style="width:100%;margin-top:10px;">Finish day & review →</button>
+  </div>`;
+}
+
+function renderRoadmapList(){
+  return `<div class="card">
+    <h2>Full Roadmap (${DB.roadmap.length} days)</h2>
+    ${DB.roadmap.map((d,idx)=>{
+      const total = d.tasks.filter(t=>!t.fixed).length;
+      const done = d.tasks.filter(t=>!t.fixed&&t.done).length;
+      const isToday = idx===DB.todayIndex;
+      return `<div style="padding:10px;border-radius:10px;margin-bottom:6px;background:${isToday?'rgba(63,224,165,.1)':'var(--bg2)'};border:1px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <b style="font-size:13px;">${d.label}${isToday?' · TODAY':''}</b>
+          <span class="small mono">${d.suddenPlan?'personal':done+'/'+total}</span>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderAlarms(day){
+  if(!day || day.suddenPlan) return `<div class="card"><h2>Alarms</h2><p class="small">No scheduled tasks today.</p></div>`;
+  const timed = day.tasks.filter(t=>t.time);
+  return `<div class="card">
+    <h2>Today's Alarms</h2>
+    <p class="small" style="margin-bottom:12px;">Browsers can't set your phone's native alarm directly. Tap "Set All" to fire in-app notification alerts at each time below while JavaQuest is open, or tap a single time to copy it and add manually in your Clock app in 2 seconds.</p>
+    ${timed.map(t=>`<div class="task"><div class="task-body"><div class="task-title">${t.title}</div><div class="task-time mono">${t.time}</div></div></div>`).join('')}
+    <button class="btn-primary" id="setAllAlarms" style="width:100%;margin-top:10px;">🔔 Set All Alarms (in-app)</button>
+  </div>`;
+}
+
+function renderStats(){
+  const completedDays = DB.history.length;
+  const last7 = DB.history.slice(-7);
+  return `<div class="card">
+    <h2>Your Stats</h2>
+    <div class="statgrid">
+      <div class="stat"><b>${DB.xp}</b><span class="small">Total XP</span></div>
+      <div class="stat"><b>${DB.streak}</b><span class="small">Day streak</span></div>
+      <div class="stat"><b>${completedDays}</b><span class="small">Days logged</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Recent Day Reviews</h2>
+    ${last7.length? last7.slice().reverse().map(h=>`
+      <div class="task" style="cursor:default;">
+        <div class="task-body">
+          <div class="task-title">${h.label}: ${h.done}/${h.total} done · +${h.xpEarned} XP</div>
+          ${h.notes? `<div class="small" style="margin-top:4px;">📝 ${h.notes}</div>`:''}
+        </div>
+      </div>`).join('') : '<p class="small">No days completed yet.</p>'}
+  </div>
+  <div class="card center">
+    <h2>Restart Setup</h2>
+    <p class="small">Re-run the questionnaire to build a brand-new roadmap (keeps your XP history).</p>
+    <button class="btn-secondary" id="restartSetupBtn">Build a new roadmap</button>
+  </div>`;
+}
+
+/* ===================== SETUP WIZARD ===================== */
+function renderSetup(){
+  const steps = [stepMode, stepDuration, stepCommitments, stepTimes, stepSummary];
+  return `
+  <div class="topbar"><div class="brand"><div class="glyph">JQ</div><h1>JavaQuest Setup</h1></div>
+  <span class="small mono">${SETUP_STEP+1}/${steps.length}</span></div>
+  <div class="progressbar" style="margin-bottom:18px;"><div style="width:${(SETUP_STEP+1)/steps.length*100}%"></div></div>
+  ${steps[SETUP_STEP]()}
+  <div class="row" style="margin-top:16px;">
+    ${SETUP_STEP>0?'<button class="btn-secondary" id="backBtn">← Back</button>':''}
+    <button class="btn-primary" id="nextBtn" style="flex:1;">${SETUP_STEP===steps.length-1? 'Generate my roadmap 🚀':'Continue →'}</button>
+  </div>`;
+}
+
+function stepMode(){
+  return `<div class="card"><h2>Pick your mode</h2><p class="small" style="margin-bottom:12px;">How hard should JavaQuest push you?</p>
+  <div class="choice-grid">
+    ${Object.entries(MODES).map(([k,m])=>`
+      <div class="choice ${setupDraft.mode===k?'selected':''}" data-mode="${k}">
+        <span class="emoji">${m.emoji}</span><div class="title">${m.label}</div><div class="sub">${m.desc}</div>
+      </div>`).join('')}
+  </div></div>`;
+}
+function stepDuration(){
+  return `<div class="card"><h2>How long is this roadmap?</h2>
+  <div class="field"><label>Duration in months</label>
+  <select class="input" id="monthsSelect">
+    ${[1,2,3,4,6].map(m=>`<option value="${m}" ${setupDraft.totalMonths===m?'selected':''}>${m} month${m>1?'s':''} (~${m*30} days)</option>`).join('')}
+  </select></div>
+  <p class="small">JavaQuest will spread Java topics, aptitude, gym and ML evenly across this span, with weekly revision days built in.</p></div>`;
+}
+function stepCommitments(){
+  return `<div class="card"><h2>Your fixed commitments</h2>
+  <div class="field"><label>College / class hours</label><input class="input" id="collegeInput" value="${setupDraft.college}"></div>
+  <div class="field"><label>Music / hobby session</label><input class="input" id="musicInput" value="${setupDraft.music}"></div>
+  <div class="field"><label><input type="checkbox" id="wantsGym" ${setupDraft.wantsGym?'checked':''}> Include daily gym sessions</label></div>
+  <div class="field"><label><input type="checkbox" id="gymRestDay" ${setupDraft.gymRestDay?'checked':''}> Rest/active-recovery on Sundays</label></div>
+  <div class="field"><label><input type="checkbox" id="wantsML" ${setupDraft.wantsML?'checked':''}> Include 1-hr ML online course daily</label></div>
+  </div>`;
+}
+function stepTimes(){
+  const fields = [['gymTime','Gym time'],['studyTime','Java concept-study time'],['practiceTime','Java practice time'],
+    ['aptTime','Aptitude practice time'],['mlTime','ML course time']];
+  return `<div class="card"><h2>Slot your times</h2>
+  ${fields.map(([k,label])=>`<div class="field"><label>${label}</label><input class="input" id="${k}" value="${setupDraft[k]}"></div>`).join('')}
+  </div>`;
+}
+function stepSummary(){
+  const m = MODES[setupDraft.mode];
+  return `<div class="card"><h2>Ready to build</h2>
+  <p>Mode: <b>${m.emoji} ${m.label}</b><br>Duration: <b>${setupDraft.totalMonths} month(s)</b> (~${setupDraft.totalMonths*30} days)</p>
+  <p class="small">JavaQuest will generate your full day-by-day Java + Aptitude + Gym + ML roadmap now. You can re-run setup anytime from the Stats tab.</p>
+  </div>`;
+}
+
+function bindSetup(){
+  document.querySelectorAll('[data-mode]').forEach(el=>el.onclick=()=>{setupDraft.mode=el.dataset.mode; render();});
+  const back = document.getElementById('backBtn');
+  if(back) back.onclick=()=>{SETUP_STEP--; render();};
+  document.getElementById('nextBtn').onclick=()=>{
+    // persist current step inputs
+    if(SETUP_STEP===1){ setupDraft.totalMonths = parseInt(document.getElementById('monthsSelect').value); }
+    if(SETUP_STEP===2){
+      setupDraft.college = document.getElementById('collegeInput').value;
+      setupDraft.music = document.getElementById('musicInput').value;
+      setupDraft.wantsGym = document.getElementById('wantsGym').checked;
+      setupDraft.gymRestDay = document.getElementById('gymRestDay').checked;
+      setupDraft.wantsML = document.getElementById('wantsML').checked;
+    }
+    if(SETUP_STEP===3){
+      ['gymTime','studyTime','practiceTime','aptTime','mlTime'].forEach(k=>setupDraft[k]=document.getElementById(k).value);
+    }
+    if(SETUP_STEP < 4){ SETUP_STEP++; render(); return; }
+    // FINAL: generate
+    setupDraft.totalDays = setupDraft.totalMonths*30;
+    DB.setup = setupDraft;
+    DB.roadmap = buildRoadmap(setupDraft);
+    DB.todayIndex = 0;
+    saveDB();
+    VIEW='dashboard';
+    render();
+  };
+}
+
+/* ===================== SHELL BINDINGS ===================== */
+function showToast(msg){
+  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+}
+
+function bindShell(){
+  document.querySelectorAll('#navRow button').forEach(b=>b.onclick=()=>{VIEW=b.dataset.v; render();});
+  document.getElementById('resetBtn').onclick=()=>{
+    if(confirm('This wipes all roadmap progress and XP. Continue?')){ DB=freshDB(); saveDB(); VIEW='setup'; SETUP_STEP=0; render(); }
+  };
+  const restart = document.getElementById('restartSetupBtn');
+  if(restart) restart.onclick=()=>{ VIEW='setup'; SETUP_STEP=0; render(); };
+
+  document.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.onclick=()=>{
+      const day = DB.roadmap[DB.todayIndex];
+      const task = day.tasks.find(t=>t.id===el.dataset.toggle);
+      task.done = !task.done;
+      saveDB(); render();
+    };
+  });
+
+  const skipPlan = document.getElementById('skipPlanDay');
+  if(skipPlan) skipPlan.onclick=()=>{ DB.todayIndex++; saveDB(); render(); };
+
+  const finishBtn = document.getElementById('finishDayBtn');
+  if(finishBtn) finishBtn.onclick=()=> openReviewModal();
+
+  const alarmBtn = document.getElementById('setAllAlarms');
+  if(alarmBtn) alarmBtn.onclick=()=> armAlarms();
+}
+
+/* ===================== ALARMS ===================== */
+function armAlarms(){
+  if(!('Notification' in window)){ showToast('Notifications not supported on this browser'); return; }
+  Notification.requestPermission().then(perm=>{
+    if(perm!=='granted'){ showToast('Enable notifications to use in-app alarms'); return; }
+    const day = DB.roadmap[DB.todayIndex];
+    let armed=0;
+    day.tasks.filter(t=>t.time).forEach(t=>{
+      const ms = msUntil(t.time);
+      if(ms>0 && ms < 24*3600*1000){
+        setTimeout(()=> new Notification('⏰ JavaQuest', {body:t.title}), ms);
+        armed++;
+      }
+    });
+    showToast(armed? `Armed ${armed} alarm(s) for today (keep this tab open)` : 'All times already passed today');
+  });
+}
+function msUntil(timeStr){
+  const m = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+  if(!m) return -1;
+  let h=parseInt(m[1]), min=parseInt(m[2]);
+  if(m[3]){ if(m[3].toUpperCase()==='PM' && h<12) h+=12; if(m[3].toUpperCase()==='AM' && h===12) h=0; }
+  const now = new Date();
+  const target = new Date(); target.setHours(h,min,0,0);
+  return target.getTime()-now.getTime();
+}
+
+/* ===================== END OF DAY REVIEW FLOW ===================== */
+function openReviewModal(){
+  const day = DB.roadmap[DB.todayIndex];
+  const total = day.tasks.filter(t=>!t.fixed).length;
+  const done = day.tasks.filter(t=>!t.fixed && t.done).length;
+  const pending = day.tasks.filter(t=>!t.fixed && !t.done);
+  const xpEarned = day.tasks.filter(t=>!t.fixed && t.done).reduce((s,t)=>s+t.xp,0);
+  const bg = document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML = `<div class="modal">
+    <h2>📊 ${day.label} Review</h2>
+    <p style="margin:10px 0;">Completed <b>${done}/${total}</b> tasks · earned <b>+${xpEarned} XP</b></p>
+    ${pending.length? `<p class="small">Pending: ${pending.map(t=>t.title).join(', ')}<br>These will move to tomorrow automatically.</p>` : `<p class="small">Everything done. Clean sweep! 🎯</p>`}
+    <div class="field"><label>How did today go? (notes)</label><textarea class="input" id="notesInput" rows="3" placeholder="Optional journal entry..."></textarea></div>
+    <button class="btn-primary" id="reviewNextBtn" style="width:100%;">Continue →</button>
+  </div>`;
+  document.body.appendChild(bg);
+  document.getElementById('reviewNextBtn').onclick=()=>{
+    day.notes = document.getElementById('notesInput').value;
+    DB.xp += xpEarned;
+    DB.streak = (done===total && total>0) ? DB.streak+1 : 0;
+    DB.history.push({label:day.label, done, total, xpEarned, notes:day.notes});
+    carryOverPending(DB.todayIndex);
+    day.reviewed = true;
+    bg.remove();
+    askSuddenPlan();
+  };
+}
+
+function askSuddenPlan(){
+  const bg = document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML = `<div class="modal">
+    <h2>📌 Any sudden plans?</h2>
+    <p class="small" style="margin:10px 0;">Trip, event, exam, or anything that'll take you off the roadmap for a few days?</p>
+    <div class="row">
+      <button class="btn-secondary" id="noPlanBtn" style="flex:1;">No, stay on track</button>
+      <button class="btn-primary" id="yesPlanBtn" style="flex:1;">Yes, I need time</button>
+    </div>
+  </div>`;
+  document.body.appendChild(bg);
+  document.getElementById('noPlanBtn').onclick=()=>{ bg.remove(); finishReviewFlow(); };
+  document.getElementById('yesPlanBtn').onclick=()=>{
+    bg.innerHTML = `<div class="modal">
+      <h2>How many days?</h2>
+      <div class="field"><label>Label (optional)</label><input class="input" id="planLabel" placeholder="e.g. Family trip"></div>
+      <div class="field"><label>Number of days</label><input class="input" id="planDays" type="number" min="1" max="30" value="2"></div>
+      <button class="btn-primary" id="confirmPlanBtn" style="width:100%;">Shift roadmap →</button>
+    </div>`;
+    document.getElementById('confirmPlanBtn').onclick=()=>{
+      const n = Math.max(1, parseInt(document.getElementById('planDays').value)||1);
+      const label = document.getElementById('planLabel').value;
+      insertSuddenPlanDays(DB.todayIndex+1, n, label);
+      bg.remove();
+      finishReviewFlow();
+    };
+  };
+}
+
+function finishReviewFlow(){
+  DB.todayIndex++;
+  saveDB();
+  render();
+  showToast("New day loaded. Let's go! 💪");
+}
+
+/* ===================== BOOT ===================== */
+render();
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
